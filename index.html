@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Week 11</title>
+    <style>
+        .container {
+            display: grid;
+            grid-template-columns: 0.6fr 1.2fr 1.2fr 1fr;
+            grid-template-rows: 0.5fr 2fr 0.5fr;
+            gap: 0px 0px;
+            grid-auto-flow: row;
+            grid-template-areas:
+                "grid-header grid-header grid-header grid-header"
+                "grid-nav grid-text grid-svg grid-svg"
+                "grid-nav grid-text grid-controls grid-controls";
+        }
+
+        .grid-header {
+            grid-area: grid-header;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .grid-nav {
+            grid-area: grid-nav;
+        }
+
+        .grid-text {
+            grid-area: grid-text;
+        }
+
+        .grid-svg {
+            grid-area: grid-svg;
+        }
+
+        .grid-controls {
+            grid-area: grid-controls;
+        }
+
+        .full-size-svg {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+        }
+
+        .svg-container {
+            width: fit-content;
+            height: fit-content;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="grid-header">
+            <h1 class="centered-text">Colorful Circles</h1>
+        </div>
+        <div class="grid-nav"></div>
+        <div class="grid-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sollicitudin, nibh vitae
+            iaculis malesuada, ipsum sapien eleifend orci, ac vulputate massa erat ut nulla. Nunc ultricies aliquam
+            neque, at auctor neque viverra in. Nullam placerat, ante et scelerisque viverra, ex leo dignissim diam, sit
+            amet scelerisque massa turpis et arcu. Pellentesque in nibh quis odio scelerisque malesuada id a lacus.
+            Nullam pretium, nisl auctor blandit sagittis, neque dolor pulvinar felis, et maximus tellus leo eget odio.
+            Donec iaculis tellus sed dignissim lacinia. Integer vel augue volutpat, mollis nulla at, scelerisque massa.
+        </div>
+        <div class="grid-svg">
+            <svg class="full-size-svg" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg" id="base-svg"></svg>
+        </div>
+        <div class="grid-controls">
+            <input type="button" value="Play!">
+        </div>
+    </div>
+
+    <script>
+        class Particle {
+            constructor(xPos, yPos, radius) {
+                this.x = xPos;
+                this.y = yPos;
+                this.r = radius;
+
+                this.svgElement;
+
+                this.animDuration = randomNum(3, 5);
+
+                this.targetX = randomNum(0, Particle.width);
+                this.targetY = Particle.height;
+
+                this.gravity = 0.1;
+            }
+
+            drawParticle() {
+                this.svgElement = makeCircle(this.x, this.y, this.r);
+                svg.appendChild(this.svgElement);
+
+                this.addAnimateX();
+                this.addAnimateY();
+            }
+
+            addAnimateX() {
+                let animElement = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                animElement.setAttribute('attributeName', 'cx');
+                animElement.setAttribute('values', `${this.x}; ${this.targetX}`);
+                animElement.setAttribute('dur', `${this.animDuration}s`);
+                animElement.setAttribute('repeatCount', 'indefinite');
+                this.svgElement.appendChild(animElement);
+            }
+
+            addAnimateY() {
+                let animElement = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                animElement.setAttribute('attributeName', 'cy');
+                animElement.setAttribute('from', `${Particle.height * -0.5}`);
+                animElement.setAttribute('to', `${Particle.height}`);
+                animElement.setAttribute('dur', `${this.animDuration}s`);
+                animElement.setAttribute('repeatCount', 'indefinite');
+                this.svgElement.appendChild(animElement);
+            }
+        }
+
+        function createParticlesArray(num) {
+            let particleInstances = [];
+
+            for (let i = 0; i < num; i++) {
+                let particleX = randomNum(0, Particle.width); 
+                let particleY = height / 2;
+                let particleSize = randomNum(width * 0.01, width * 0.02);
+
+                particleInstances.push(new Particle(particleX, particleY, particleSize));
+            }
+            return particleInstances;
+        }
+
+        function animateParticles() {
+            for (let particle of particles) {
+                particle.targetX = randomNum(0, Particle.width);
+                particle.targetY = Particle.height;
+            }
+        }
+
+        function randomNum(lower, upper) {
+            let num = lower + Math.random() * (upper - lower);
+            return num;
+        }
+
+        function makeCircle(x, y, radius) {
+            let circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', radius);
+            circle.setAttribute('fill', getRandomColor());
+            return circle;
+        }
+
+        function getRandomColor() {
+            let letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        const svg = document.getElementById('base-svg');
+
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+
+        Particle.width = width;
+        Particle.height = height;
+
+        let particles = createParticlesArray(80);
+
+        for (let particle of particles) {
+            particle.drawParticle();
+        }
+
+        animateParticles();
+    </script>
+</body>
+
+</html>
